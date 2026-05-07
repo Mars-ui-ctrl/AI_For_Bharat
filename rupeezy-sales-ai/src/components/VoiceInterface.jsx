@@ -309,7 +309,7 @@ export default function VoiceInterface({ onCallEnd, leadHistory }) {
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex items-start gap-4 w-[90%] animate-slideUp ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
                         <div className={`w-10 h-10 rounded-full border border-[#4a4455] flex items-center justify-center shrink-0 overflow-hidden ${msg.role === 'ai' ? 'bg-[#37333e]' : 'bg-[#7c3aed]'}`}>
-                             <img alt={msg.role} className="w-full h-full object-cover" src={msg.role === 'ai' ? "https:
+                            <img alt={msg.role} className="w-full h-full object-cover" src={msg.role === 'ai' ? "https://api.dicebear.com/7.x/bottts/svg?seed=rupeezy" : "https://api.dicebear.com/7.x/avataaars/svg?seed=user"} />
                         </div>
                         <div className={`p-4 rounded-2xl text-[15px] leading-relaxed shadow-lg ${msg.role === 'user' ? 'bg-[#7c3aed] text-white rounded-tr-none' : 'bg-[#221e28] text-[#e8dfee] border border-[#3c3742] rounded-tl-none'}`}>
                             {msg.text}
