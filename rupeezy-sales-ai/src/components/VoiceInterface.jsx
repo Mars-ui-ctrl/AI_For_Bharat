@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://ai-for-bharat-c29v.onrender.com';
 const GREETING = "Hello! I'm Rupeezy AI. How can I help you today?";
 
 export default function VoiceInterface({ onCallEnd, leadHistory }) {
