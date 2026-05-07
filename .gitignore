@@ -1,0 +1,19 @@
+# 📦 Node Dependencies
+node_modules/
+rupeezy-backend/node_modules/
+rupeezy-sales-ai/node_modules/
+
+# 🔐 Environment Variables (CRITICAL: Never upload API keys!)
+.env
+.env.local
+.env.*.local
+
+# 🏗️ Build Outputs (Vite/React)
+dist/
+build/
+rupeezy-sales-ai/dist/
+
+# 🗑️ OS & Log Files
+.DS_Store
+Thumbs.db
+npm-debug.log*
