@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
@@ -115,6 +116,26 @@ async function callGeminiWithRetry(model, contents, maxRetries = 3) {
     }
 }
 
+async function callMiniMax(prompt) {
+    const response = await axios.post(
+        "https://api.minimax.chat/v1/text/chatcompletion_v2",
+        {
+            model: "MiniMax-M2.5",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: prompt }
+            ]
+        },
+        {
+            headers: {
+                "Authorization": `Bearer ${process.env.MINIMAX_API_KEY}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+    return response.data.choices[0].message.content;
+}
+
 function parseGeminiResponse(rawText, fallbackLang = 'en') {
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
@@ -179,7 +200,30 @@ app.post("/api/chat", async (req, res) => {
         res.json(parsedData);
     } catch (error) {
         console.error("Gemini Error:", error.message || error);
-        res.status(500).json({ error: "Failed to get AI response" });
+
+        // Fallback to MiniMax M2.5
+        console.log("[Fallback] Trying MiniMax M2.5...");
+        try {
+            const historyText = req.body.history
+                .filter(msg => msg.text)
+                .map(msg => `${msg.role === 'ai' ? 'AI' : 'User'}: ${msg.text}`)
+                .join("\n");
+
+            const miniMaxPrompt = `${historyText}\nUser: ${req.body.userMessage}`;
+            const miniMaxResponse = await callMiniMax(miniMaxPrompt);
+
+            // Parse MiniMax response (it's text, need to format as JSON-like)
+            const parsedData = parseGeminiResponse(miniMaxResponse);
+            if (!parsedData.lang) {
+                parsedData.lang = detectLanguage(parsedData.reply || '');
+            }
+
+            console.log("[Fallback] MiniMax response received");
+            res.json(parsedData);
+        } catch (miniMaxError) {
+            console.error("MiniMax Error:", miniMaxError.message || miniMaxError);
+            res.status(500).json({ error: "Failed to get AI response from both Gemini and MiniMax" });
+        }
     }
 });
 
